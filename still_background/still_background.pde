@@ -1,20 +1,23 @@
+import processing.sound.*;
+
+SoundFile file;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 
-float darkness = 3.0;
-float scale = 3000; // Set same as image size
-
-int song_minutes = 3;
-int song_seconds = 23;
-
-// Number of frames needed for a full rotation
-int total_frames = (30 * (song_minutes * 60 + song_seconds));
+String music_file = "C:/cygwin64/home/Oday/code/git/res/electrickery.mp3";
+String dat_file = music_file.replaceAll("mp3","dat");
+String png_file = music_file.replaceAll("mp3","png");
 
 int count = 0;
-int timesize = 4096;
-int specsize = timesize/2 + 1;
-int datasize = total_frames * (timesize+2);
-float data[] = new float[datasize];
+int datasize;
+int total_frames;
+float data[];
+int timesize;
+int specsize;
+
+float darkness = 4.0;
+float scale = 3000; // Set same as image size
 
 PGraphics pg;
 
@@ -25,8 +28,19 @@ void setup()
   pg = createGraphics((int)scale, (int)scale);
   background(255);
   frameRate(300);
-  //read_from_file("/Users/oday/code/git/processing-toys/mp3/prologue.dat", data, datasize);
-  read_from_file("C:/cygwin64/home/Oday/code/git/processing-toys/mp3/si.dat", data, datasize);
+  
+  file = new SoundFile(this, music_file);
+  println("Duration= " + file.duration() + " seconds");
+
+  timesize = 4096;
+  specsize = timesize/2 + 1;
+
+  total_frames = 30 * floor(file.duration());
+  datasize = total_frames * (timesize+2);
+  data = new float[datasize];
+
+  //read_from_file("/Users/oday/code/git/mp3/prologue.dat", data, datasize);
+  read_from_file(dat_file, data, datasize);
   println("total frames = " + total_frames);
   pg.beginDraw();
   pg.background(255); //<>//
@@ -100,7 +114,7 @@ void draw()
   
   // Save frame once full rotation done
   if (frameCount == total_frames) { 
-    pg.save("si3000_5.png");
+    pg.save(png_file);
     exit();
   }
   

@@ -1,43 +1,49 @@
 import ddf.minim.analysis.*;
 import ddf.minim.*;
 
+Minim minim;
+AudioPlayer player;
+ddf.minim.analysis.FFT fft_r;
+ddf.minim.analysis.FFT fft_l;
+
+import processing.sound.*;
+
+SoundFile file;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 
-Minim minim;  
-AudioPlayer player;
-FFT fft_r;
-FFT fft_l;
-
-// Change these according to song you're painting
-// Will be used to calculate rotation speed
-int song_minutes = 3;
-int song_seconds = 23;
-
-// Number of frames needed for a full rotation
-int total_frames = (30 * (song_minutes * 60 + song_seconds));
+String music_file = "C:/cygwin64/home/Oday/code/git/res/electrickery.mp3";
+String dat_file = music_file.replaceAll("mp3","dat");
 
 int count = 0;
-int datasize = total_frames * 4098;
-float data[] = new float[datasize];
+int datasize;
+int total_frames;
+float data[];
 
 void setup()
 {
   size(30,30);
   frameRate(30);
   
-  System.out.println("Working Directory = " +
-              System.getProperty("user.dir"));
+  System.out.println("Working Directory = " + System.getProperty("user.dir"));
   
   // Change audio file here
   minim = new Minim(this);
-  //player = minim.loadFile("/Users/oday/code/git/processing-toys/mp3/prologue.mp3", 4096);
-  player = minim.loadFile("C:/cygwin64/home/Oday/code/git/processing-toys/mp3/si.mp3", 4096);
+  //player = minim.loadFile("/Users/oday/code/git/res/prologue.mp3", 4096);
+  player = minim.loadFile(music_file, 4096);
   
+  file = new SoundFile(this, music_file);
+  println("Duration= " + file.duration() + " seconds");
+  
+  total_frames = 30 * floor(file.duration());
+  datasize = total_frames * 4098;
+  data = new float[datasize];
+
   player.play();
 
-  fft_r = new FFT( player.bufferSize(), player.sampleRate() );
-  fft_l = new FFT( player.bufferSize(), player.sampleRate() );
+  fft_r = new ddf.minim.analysis.FFT( player.bufferSize(), player.sampleRate() );
+  fft_l = new ddf.minim.analysis.FFT( player.bufferSize(), player.sampleRate() );
 }
 
 void draw()
@@ -55,9 +61,9 @@ void draw()
     data[count*4098 + i       ] = fft_l.getBand(i);
   }
   count++;
-  if ( count == total_frames ) {  
+  if ( count == total_frames ) {
     //write_to_file("/Users/oday/code/git/processing-toys/mp3/prologue.dat", data, datasize);
-    write_to_file("C:/cygwin64/home/Oday/code/git/processing-toys/mp3/si.dat", data, datasize);
+    write_to_file(dat_file, data, datasize);
     exit();
   }
 }
